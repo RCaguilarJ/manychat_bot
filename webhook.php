@@ -1,30 +1,38 @@
 <?php
-// webhook.php
+// webhook.php - VERSIÓN FINAL ACTUALIZADA
 
-// 1. Incluimos la conexión. Si falla, el script se detiene aquí.
 require_once 'conexion.php';
 
-// 2. Recibimos los datos crudos (JSON) de ManyChat
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
-// 3. Verificamos si hay una acción definida
 if (isset($data['accion'])) {
     $accion = $data['accion'];
     
-    // 4. Semáforo de decisiones
+    // 1. Registro de paciente
     if ($accion === 'registrar') {
         require_once 'modulos/registro_paciente.php';
         
+    // 2. Consulta de estatus de folio
     } elseif ($accion === 'consultar') {
         require_once 'modulos/consulta_folio.php';
-        
+
+    // 3. Verificar días disponibles
+    } elseif ($accion === 'verificar_dias') {
+        require_once 'modulos/verificar_dias.php';
+
+    // 4. Agendar cita (Guardar en BD)
+    } elseif ($accion === 'agendar') {
+        require_once 'modulos/agendar_cita.php';
+
+    // 5. NUEVO: Obtener lista de estudios
+    } elseif ($accion === 'obtener_estudios') {
+        require_once 'modulos/obtener_estudios.php';
+
     } else {
-        // Acción desconocida
-        echo json_encode(['status' => 'error', 'mensaje' => 'Acción no válida']);
+        echo json_encode(['status' => 'error', 'mensaje' => 'Acción no válida: ' . $accion]);
     }
 } else {
-    // No llegó ninguna acción
     echo json_encode(['status' => 'error', 'mensaje' => 'No se recibió ninguna acción']);
 }
 ?>

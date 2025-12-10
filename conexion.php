@@ -1,7 +1,8 @@
 <?php
 // conexion.php
-$host = 'localhost';
-$dbname = 'manychatdb'; // ¡Asegúrate de poner el nombre real!
+$host = '127.0.0.1'; // Usamos la IP directa
+$port = '3306';      // Forzamos el puerto estándar de WAMP
+$dbname = 'manychatdb';
 $username = 'root';
 $password = '';
 
@@ -13,8 +14,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
 } catch (PDOException $e) {
-    // Si falla, detenemos todo y mostramos un mensaje genérico por seguridad
-    die("Error de conexión a la base de datos."); 
-    // En producción, aquí podrías escribir el error real en un archivo de log
+    // CAMBIO TEMPORAL: Mostrar el error real
+    die("Error SQL DETALLADO: " . $e->getMessage()); 
 }
 ?>

@@ -1,8 +1,9 @@
 <?php
-// webhook.php - VERSIÓN FINAL ACTUALIZADA
+// webhook.php - VERSIÓN CORREGIDA Y DEFINITIVA
 
 require_once 'conexion.php';
 
+// Recibir y decodificar el JSON de ManyChat
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
@@ -21,11 +22,15 @@ if (isset($data['accion'])) {
     } elseif ($accion === 'verificar_dias') {
         require_once 'modulos/verificar_dias.php';
 
-    // 4. Agendar cita (Guardar en BD)
+    // 4. Verificar horas disponibles (¡ESTO FALTABA!)
+    } elseif ($accion === 'verificar_horas') {
+        require_once 'modulos/verificar_horas.php';
+
+    // 5. Agendar cita (Guardar en BD)
     } elseif ($accion === 'agendar') {
         require_once 'modulos/agendar_cita.php';
 
-    // 5. NUEVO: Obtener lista de estudios
+    // 6. Obtener lista de estudios (Buscador)
     } elseif ($accion === 'obtener_estudios') {
         require_once 'modulos/obtener_estudios.php';
 

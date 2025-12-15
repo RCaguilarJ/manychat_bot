@@ -1,15 +1,17 @@
 <?php
-// modulos/verificar_horas.php
+// modulos/verificar_horas.php - VERSIÓN CORREGIDA (SQL FIXED)
 
-// 1. Recibir datos
+// 1. Recibir datos (fecha seleccionada por el usuario)
 $fecha = $data['fecha'] ?? date('Y-m-d');
+
 // Definir horario de trabajo (Ej: 9:00 a 14:00)
 $hora_inicio = 9; 
 $hora_fin = 14; 
 $intervalo = 30; // minutos por cita
 
 // 2. Buscar citas ocupadas en esa fecha
-$sql = "SELECT DATE_FORMAT(fecha_hora, '%H:%i') as hora FROM agenda WHERE DATE(fecha_hora) = :fecha";
+// CORRECCIÓN: Usamos 'fecha_cita' en lugar de 'fecha_hora'
+$sql = "SELECT DATE_FORMAT(fecha_cita, '%H:%i') as hora FROM agenda WHERE DATE(fecha_cita) = :fecha";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([':fecha' => $fecha]);
 $citas_ocupadas = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -27,13 +29,14 @@ while ($hora_actual < $hora_limite) {
         $horas_disponibles[] = $hora_str;
     }
     
+    // Avanzamos al siguiente bloque de 30 mins
     $hora_actual->modify("+$intervalo minutes");
 }
 
-// 4. Responder
+// 4. Responder a ManyChat
 if (count($horas_disponibles) > 0) {
     $respuesta['status'] = 'success';
-    // Convertimos el array en un texto bonito: "09:00, 09:30, 10:30..."
+    // Convertimos el array en un texto: "09:00, 09:30, 10:30..."
     $respuesta['mensaje_horas'] = implode(", ", $horas_disponibles);
 } else {
     $respuesta['status'] = 'full';

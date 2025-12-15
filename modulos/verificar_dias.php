@@ -1,32 +1,34 @@
 <?php
 // modulos/verificar_dias.php
-
-// Array para guardar los nombres de los días en español (opcional, para que se vea bonito)
-$dias_esp = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-
 $respuesta = [];
+$fecha_actual = new DateTime();
 
 // Generamos los próximos 7 días
-for ($i = 0; $i < 7; $i++) {
-    // Obtenemos la fecha sumando $i días a hoy
-    $timestamp = strtotime("+$i days");
+for ($i = 1; $i <= 7; $i++) {
+    // Avanzar 1 día
+    $fecha_actual->modify('+1 day');
     
-    // Formato para mostrar: "Lunes 04/12"
-    $numero_dia_semana = date("w", $timestamp);
-    $nombre_dia = $dias_esp[$numero_dia_semana];
-    $fecha_corta = date("d/m", $timestamp);
+    // Si es domingo, nos lo saltamos (opcional)
+    if ($fecha_actual->format('N') == 7) {
+        $fecha_actual->modify('+1 day');
+    }
     
-    // Creamos la clave exacta que espera ManyChat (dia_1, dia_2...)
-    // Nota: $i empieza en 0, así que sumamos 1 para que sea dia_1
-    $clave = "dia_" . ($i + 1);
+    // Formato para el botón (Ej: "Lun 12 Oct")
+    // Usamos setlocale para intentar español, o arrays manuales si falla
+    $dias_ES = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+    $meses_ES = ["", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     
-    // Guardamos el valor
-    $respuesta[$clave] = "$nombre_dia $fecha_corta";
+    $dia_sem = $dias_ES[$fecha_actual->format('w')];
+    $dia_num = $fecha_actual->format('d');
+    $mes = $meses_ES[$fecha_actual->format('n')];
+    
+    // Guardamos texto para el botón (Ej: "Lun 12 Oct")
+    $respuesta["dia_$i"] = "$dia_sem $dia_num $mes";
+    
+    // También enviamos el valor real para guardar en la BD (Ej: "2025-10-12")
+    $respuesta["fecha_real_$i"] = $fecha_actual->format('Y-m-d');
 }
 
-// Agregamos estatus de éxito
 $respuesta['status'] = 'success';
-
-// Enviamos el JSON
 echo json_encode($respuesta);
 ?>
